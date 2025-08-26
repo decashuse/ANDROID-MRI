@@ -1,7 +1,5 @@
 # ANDROID-MRI
 
-Here’s the **complete `README.md`** in English, with everything merged into one clean file (no accuracy limits, license, ethics, or change log). You can drop this directly into your repo:
-
 ```markdown
 # RASP_Evaluation
 
