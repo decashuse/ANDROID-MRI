@@ -123,5 +123,3 @@ rule RASP_Tamper_Generic_Magisk_Strings {
 
 ---
 
-👉 Would you like me to also create a **shorter academic-style README** (just summarizing purpose, dataset, and usage in the paper) so you can use that for the publication’s artifact submission, while keeping this longer one for GitHub?
-```
