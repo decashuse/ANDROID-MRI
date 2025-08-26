@@ -1,123 +1,231 @@
 # ANDROID-MRI
+ANDROID-MRI — RASP Evaluation Pipeline (4 Scripts)
 
-```markdown
-# RASP_Evaluation
+This README documents the four scripts — 1.unzip.sh, 2.proc_thread.py, 3.filter.sh, and 4.make_csv.sh — as a single, end-to-end pipeline that turns an APK batch into a tag-matrix CSV using YARA rules.
 
-This folder contains scripts and YARA rules for detecting the presence of **Runtime Application Self-Protection (RASP)** mechanisms in Android apps.  
-It was originally used in the **ANDROID-MRI** study to build large-scale measurements of RASP prevalence and analyze its effectiveness.
+At a glance
 
----
+Extract APK contents → 2) Match YARA rules (multi-threaded) →
 
-## Purpose
+Aggregate tags per app → 4) Export one-hot CSV
+Artifacts: log.txt, output.txt, output.csv
 
-- Scan APK files for **RASP-related patterns** inside `classes.dex`, `lib/*.so`, and `assets/*`.
-- Detect and categorize the following five classes of RASP mechanisms:
-  - **Tamper detection** (rooting/hooking detection, anti-debugging)
-  - **Obfuscation**
-  - **Anti-disassembly**
-  - **Protector** (wrappers and execution protectors)
-  - **Packer** (encrypted/packed loaders)
-- Batch-process large sets of APKs and generate results in CSV format.
-- Summarize the output into tables suitable for research papers.
+Requirements
 
----
+Linux/macOS with bash
+
+7-Zip CLI (7z) — e.g., Ubuntu: sudo apt-get install p7zip-full
+
+YARA — e.g., Ubuntu: sudo apt-get install yara
+
+Python 3.9+ and yara-python — pip install yara-python
+
+GNU grep with PCRE (-P), plus awk, sort, uniq, sed, tr
+
+Prepare two inputs before you start:
+
+A directory containing the APK files
+
+A directory containing your YARA rules (.yar files)
+
+Files in this pipeline
+1.unzip.sh         # Step 1: extract APKs to per-app subfolders
+2.proc_thread.py   # Step 2: multi-thread YARA scan over extracted files (prints matches)
+3.filter.sh        # Step 3: aggregate tags per app from the scan log
+4.make_csv.sh      # Step 4: build a one-hot CSV across all discovered tags
+
+Quick start
+# 1) Extract APKs
+bash 1.unzip.sh
+
+# 2) Run YARA and capture matches
+python3 2.proc_thread.py > log.txt
+
+# 3) Aggregate by app
+bash 3.filter.sh
+
+# 4) Build CSV
+bash 4.make_csv.sh
 
 
-## Requirements
+Results: log.txt, output.txt, output.csv
 
-- **Python 3.9+**
-- **yara / yara-python**
-  ```bash
-  sudo apt-get update && sudo apt-get install -y yara
-  python3 -m pip install -U yara-python tqdm pandas
-````
+Step 1 — Extract APKs (1.unzip.sh)
 
-* Optional: APK extraction tools (`unzip`, `aapt2`, `jadx`, or `apktool`)
+What it does
 
----
+Iterates all *.apk inside SOURCE_DIR
 
-## Quick Start
+Creates OUTPUT_DIR/<apk_basename>/ for each APK
 
-1. Prepare a folder with APKs:
+Extracts only selected file types (*.apk, *.dex, *.so) via 7-Zip
 
-   ```bash
-   ls apks/*.apk | head
-   ```
+Uses multi-threaded 7-Zip (-mmt=<THREADS>) by default
 
-2. Run a batch scan:
+Edit these variables first
 
-   ```bash
-   python3 scripts/scan_apks.py \
-     --apks ./apks \
-     --rules ./rules \
-     --out ./results/rasp_scan.csv \
-     --workers 8
-   ```
+SOURCE_DIR="/path/to/apk_batch"
+OUTPUT_DIR="/path/to/unzipped"
+THREADS=16   # adjust for your machine
 
-3. Scan a single APK (debugging mode):
 
-   ```bash
-   python3 scripts/scan_one.py \
-     --apk ./apks/sample.apk \
-     --rules ./rules \
-     --print-hits
-   ```
+Run
 
-4. Summarize results:
+bash 1.unzip.sh
 
-   ```bash
-   python3 scripts/summarize.py \
-     --csv ./results/rasp_scan.csv \
-     --out ./results/summary.csv
-   ```
 
----
+Output structure (example)
 
-## Output Format
+OUTPUT_DIR/
+  ├─ com.example.app1/
+  │    ├─ classes.dex
+  │    ├─ lib/arm64-v8a/*.so
+  │    └─ ...
+  └─ com.example.app2/
+       └─ ...
 
-Example `rasp_scan.csv`:
+Step 2 — Multi-thread YARA scan (2.proc_thread.py)
 
-| apk\_name     | package         | tamper\_detection | obfuscation | anti\_disassembly | protector | packer | hits                                          |
-| ------------- | --------------- | ----------------- | ----------- | ----------------- | --------- | ------ | --------------------------------------------- |
-| SampleApp.apk | com.example.app | 1                 | 0           | 1                 | 0         | 0      | `tamper/generic_rule1; anti_disasm/some_rule` |
+What it does
 
-* Each category is represented as **1 (present) / 0 (absent)**.
-* The `hits` column lists the YARA rules that matched.
+Compiles all YARA rules found under yara_rule_directory
 
----
+Recursively walks the unzip_directory and scans every file with a thread pool
 
-## Writing YARA Rules
+Prints one line per match to STDOUT with the file path and rule tags
 
-Each rule should declare its category in the **meta** section:
+Edit these variables first (top of the file)
 
-```yara
-rule RASP_Tamper_Generic_Magisk_Strings {
-  meta:
-    category = "tamper_detection"
-    vendor   = "generic"
-    note     = "Common root/hooking detection strings"
-  strings:
-    $a = "magisk" nocase ascii
-    $b = "frida"  nocase ascii
-    $c = "supersu" nocase ascii
-  condition:
-    any of them
-}
-```
+apk_directory       = '...'  # optional, not required by the pipeline
+unzip_directory     = '...'  # set to OUTPUT_DIR from Step 1
+yara_rule_directory = '...'  # directory containing .yar files
 
-* Use descriptive categories (`tamper_detection`, `obfuscation`, etc.).
-* Combine multiple patterns to reduce false matches.
-* For packers/protectors, check both `classes.dex` and native `lib/*.so`.
 
----
+Run (and capture log)
 
-## Batch Experiment Tips
+python3 2.proc_thread.py > log.txt
 
-* Use the `--workers` option to parallelize scans for large datasets.
-* If APKs are large, extract only the necessary files (`classes*.dex`, `lib/*`) before scanning to improve performance.
-* For research outputs, map results from **1/0** to **✓/–** for tables and figures.
 
-```
+Expected log line (example)
 
----
+File: /.../com.example.app/lib/arm64-v8a/libfoo.so ['rasp','hooking']
 
+
+Notes
+
+A file can match multiple rules and multiple tags.
+
+The script slices paths around a literal ... for display. For robust relative paths, replace it with:
+
+file_path_rel = os.path.relpath(file_path, unzip_directory)
+print(f"File: {file_path_rel}", end="")
+
+Step 3 — Aggregate tags per app (3.filter.sh)
+
+What it does
+
+Reads log.txt
+
+Groups matches by top-level folder name (treated as the app ID)
+
+Collects tags for each app, sorts, and de-duplicates
+
+Writes an app-to-tags summary to output.txt
+
+Run
+
+bash 3.filter.sh
+
+
+Output (output.txt, example)
+
+com.example.app ['hooking'] ['rasp'] ...
+
+Step 4 — One-hot CSV over all tags (4.make_csv.sh)
+
+What it does
+
+Scans output.txt to discover the full tag vocabulary (CSV columns)
+
+For each app line, marks o if a tag is present, X otherwise
+
+Produces output.csv
+
+Run
+
+bash 4.make_csv.sh
+
+
+Output (output.csv, example)
+
+app name,hooking,rasp,root,packer
+com.example.app,o,o,X,X
+other.app,X,o,o,X
+
+Output files
+
+log.txt — raw, file-level YARA matches (File: <path> [tags] per line, may include multiple tag lists)
+
+output.txt — app-level, de-duplicated tag summary (space-separated lists like ['tag1'] ['tag2'])
+
+output.csv — one-hot app×tag matrix (o / X values)
+
+Verification (how each script behaves)
+
+1.unzip.sh
+
+Loops over SOURCE_DIR/*.apk, makes per-APK subfolders under OUTPUT_DIR
+
+Calls 7z x -y -mmt=<THREADS> -ir!*.apk -ir!*.so -ir!*.dex
+
+Prints success/failure per APK
+
+2.proc_thread.py
+
+Compiles rules from yara_rule_directory
+
+Walks unzip_directory with a worker queue and thread pool
+
+On each match: prints File: <path> [rule.tags]
+
+3.filter.sh
+
+Parses lines beginning with File: in log.txt
+
+Uses path’s first component (top-level folder) as the app key
+
+Token-collects tags, sorts, de-duplicates, writes one line per app to output.txt
+
+4.make_csv.sh
+
+Greps all bracketed tag lists from output.txt to build the set of all tags
+
+For each app line: fills o/X per tag and writes output.csv
+
+Tips & known caveats
+
+GNU grep (PCRE) required
+4.make_csv.sh uses grep -oP. On macOS, install GNU grep (or replace the extraction with perl).
+
+Tag tokens vs. bracket groups
+Because 3.filter.sh sorts tokens, bracketed groups like ['a','b'] may be split.
+4.make_csv.sh expects bracketed lists (regex: \['.*?'\]).
+For stability, either:
+
+Standardize Step 2 tag output to comma-only without spaces, or
+
+Rewrite Step 3 as a small Python aggregator that parses brackets explicitly.
+
+Relative paths
+Replace the ... slicing in Step 2 with os.path.relpath for consistent, repository-relative paths.
+
+Performance tuning
+Adjust THREADS in Step 1 and the thread-pool size in Step 2 to fit your CPU/I/O.
+
+Customization
+
+Different APK batch → change SOURCE_DIR in 1.unzip.sh
+
+Different YARA rules → change yara_rule_directory in 2.proc_thread.py
+
+Different artifact names/paths → tweak variables at the top of 3.filter.sh and 4.make_csv.sh
