@@ -24,29 +24,6 @@ It was originally used in the **ANDROID-MRI** study to build large-scale measure
 
 ---
 
-## Directory Structure (example)
-
-```
-
-RASP\_Evaluation/
-├─ rules/                # YARA rules for each RASP category
-│   ├─ tamper/*.yar
-│   ├─ obfuscation/*.yar
-│   ├─ anti\_disasm/*.yar
-│   ├─ protector/*.yar
-│   └─ packer/\*.yar
-├─ scripts/              # Python and shell scripts
-│   ├─ scan\_apks.py      # Batch scan of APK directory
-│   ├─ scan\_one.py       # Single APK scan
-│   ├─ summarize.py      # Aggregate CSV results
-│   └─ extract.sh        # APK extraction helper
-├─ examples/             # Example runs and sample outputs
-├─ results/              # Generated outputs
-└─ README.md
-
-````
-
----
 
 ## Requirements
 
