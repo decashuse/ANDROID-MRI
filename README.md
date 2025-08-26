@@ -8,7 +8,7 @@ The `Demo/` directory contains an **example analysis** of the test application [
 
 ---
 # ANDROID-MRI — Test-app Logs
-## 2. Demo
+## 2. Log
 
 The `Demo/` directory contains an **example analysis** of the test application [Android-InsecureBankv2](https://github.com/dineshshetty/Android-InsecureBankv2) performed with **ANDROID-MRI**.
 
