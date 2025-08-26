@@ -1,6 +1,6 @@
 # ANDROID-MRI
 # ANDROID-MRI — DEMO
-## Demo folder
+## 1. Demo
 
 The `Demo/` directory contains an **example analysis** of the test application [Android-InsecureBankv2](https://github.com/dineshshetty/Android-InsecureBankv2) performed with **ANDROID-MRI**.
 
@@ -10,7 +10,7 @@ The `Demo/` directory contains an **example analysis** of the test application [
 
 
 ---
-# ANDROID-MRI — RASP Evaluation Pipeline (4 Scripts)
+# 2. ANDROID-MRI — RASP Evaluation
 
 This README documents the four scripts — **`1.unzip.sh`**, **`2.proc_thread.py`**, **`3.filter.sh`**, and **`4.make_csv.sh`** — as a single, end-to-end pipeline that turns an APK batch into a **tag-matrix CSV** using YARA rules.
 
