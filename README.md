@@ -3,11 +3,11 @@
 
 ## Kernel Source (android-msm-crosshatch-4.9-android12)
 
-The `/SourceCode/Kernel/android-msm-crosshatch-4.9-android12` directory contains the `android-msm-crosshatch-4.9-android12` kernel source code.
+The `/SourceCode_Kernel/Kernel/android-msm-crosshatch-4.9-android12` directory contains the `android-msm-crosshatch-4.9-android12` kernel source code.
 
 1. Download the `android-msm-crosshatch-4.9-android12` kernel source code from Google.
 2. In the downloaded kernel tree, replace the `private/` directory with the code provided at:
-   - `/SourceCode/Kernel/android-msm-crosshatch-4.9-android12/private`
+   - `/SourceCode_Kernel/Kernel/android-msm-crosshatch-4.9-android12/private`
 3. Install the required build dependencies on Ubuntu (e.g., standard build tools and common kernel build packages).
 4. From the kernel source root, build the kernel (example using the provided script, if available):
    - `./build_bluecross.sh -j$(nproc)`
@@ -15,11 +15,11 @@ The `/SourceCode/Kernel/android-msm-crosshatch-4.9-android12` directory contains
 
 ## Platform Source (Android 12.0.0_r1 — SP1A.210812.015)
 
-The `/SourceCode/art/runtime/` directory contains the modified ART runtime source code intended for the Android **12.0.0_r1 (SP1A.210812.015)** platform tree.
+The `/SourceCode_System/runtime/` directory contains the modified ART runtime source code intended for the Android **12.0.0_r1 (SP1A.210812.015)** platform tree.
 
 1. Download the Android **12.0.0_r1 (SP1A.210812.015)** platform source code from Google (AOSP).
 2. In the downloaded platform source tree, replace `art/runtime/` with the source code provided at:
-   - `/SourceCode/art/runtime/`
+   - `/SourceCode_System/runtime/`
 3. Install Android build dependencies on Ubuntu (including **OpenJDK 11**) and install the `repo` tool.
 4. Initialize and sync the AOSP tree (example):
    - `repo init -u https://android.googlesource.com/platform/manifest -b android-12.0.0_r1`
