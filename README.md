@@ -1,6 +1,18 @@
 # ANDROID-MRI
 # ANDROID-MRI — SourceCode
 
+## Kernel Source (android-msm-crosshatch-4.9-android12)
+
+The `/SourceCode/Kernel/android-msm-crosshatch-4.9-android12` directory contains the `android-msm-crosshatch-4.9-android12` kernel source code.
+
+1. Download the `android-msm-crosshatch-4.9-android12` kernel source code from Google.
+2. In the downloaded kernel tree, replace the `private/` directory with the code provided at:
+   - `/SourceCode/Kernel/android-msm-crosshatch-4.9-android12/private`
+3. Install the required build dependencies on Ubuntu (e.g., standard build tools and common kernel build packages).
+4. From the kernel source root, build the kernel (example using the provided script, if available):
+   - `./build_bluecross.sh -j$(nproc)`
+5. After the build completes, collect the build artifacts from the output distribution directory (typically under `out/.../dist/`).
+
 # ANDROID-MRI — Test-app DEMO video
 The `Test-app Demo video/` directory contains an **example analysis** of the test application [Android-InsecureBankv2](https://github.com/dineshshetty/Android-InsecureBankv2) performed with **ANDROID-MRI**.
 
