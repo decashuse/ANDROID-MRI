@@ -1,7 +1,5 @@
 # ANDROID-MRI
 # ANDROID-MRI — Test-app DEMO video
-## 1. Demo
-
 The `Test-app Demo video/` directory contains an **example analysis** of the test application [Android-InsecureBankv2](https://github.com/dineshshetty/Android-InsecureBankv2) performed with **ANDROID-MRI**.
 
 - **`Demo.mp4`** — A demo video showing how ANDROID-MRI analyzes InsecureBank v2.  
