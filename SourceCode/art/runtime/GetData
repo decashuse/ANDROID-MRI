@@ -1,0 +1,8 @@
+interpreter/unstarted_runtime.cc:        byte_array->SetWithoutChecks<true>(i + offset, *address);
+native/java_lang_StringFactory.cc:  int32_t data_size = byte_array->GetLength();
+native/java_lang_StringFactory.cc:  int32_t data_size = byte_array->GetLength();
+native/java_lang_StringFactory.cc:  jbyte* d = byte_array->GetData();
+mirror/var_handle.cc:  ObjPtr<ByteArray> byte_array(raw_byte_array->AsByteArray());
+mirror/var_handle.cc:  if (!CheckElementIndex(primitive_type, data_offset, byte_array->GetLength())) {
+mirror/var_handle.cc:  int8_t* const data = byte_array->GetData();
+mirror/var_handle.cc:    data = heap_byte_array->GetData();
